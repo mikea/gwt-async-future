@@ -1,10 +1,12 @@
 package com.googlecode.future;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.googlecode.future.ExecutionException.returnIfCheckedThrowIfUnchecked;
 
@@ -32,7 +34,8 @@ import static com.googlecode.future.ExecutionException.returnIfCheckedThrowIfUnc
  * @param <T> Type of result
  */
 public class FutureResult<T> implements CancellableAsyncCallback<T>, Future<T> {
-    
+    private static final Logger LOG = Logger.getLogger(FutureResult.class.getName());
+
     private String name;
     
     public FutureResult() { }
@@ -139,7 +142,12 @@ public class FutureResult<T> implements CancellableAsyncCallback<T>, Future<T> {
     
     private void notifyListenersOnSuccess(T value) {
         for (AsyncCallback<T> callback : copyCallbacksThenClear()) {
+          try {
             callback.onSuccess(value);
+          } catch (Throwable t) {
+            LOG.log(Level.SEVERE, "Exception thrown in listener", t);
+            throw new RuntimeException(t);
+          }
         }
     }
     
@@ -204,15 +212,25 @@ public class FutureResult<T> implements CancellableAsyncCallback<T>, Future<T> {
 
     private void notifyListenersOnFailure() {
         for (AsyncCallback<T> callback : copyCallbacksThenClear()) {
+          try {
             callback.onFailure(this.exception);
+          } catch (Throwable t) {
+            LOG.log(Level.SEVERE, "Exception thrown in listener", t);
+            throw new RuntimeException(t);
+          }
         }
     }
     
     private void notifyListenersOnCancel() {
         for (AsyncCallback<T> callback : copyCallbacksThenClear()) {
+          try {
             if (callback instanceof CancellableAsyncCallback<?>) {
-                ((CancellableAsyncCallback<?>) callback).onCancel();                
+                ((CancellableAsyncCallback<?>) callback).onCancel();
             } else callback.onFailure(this.exception);
+          } catch (Throwable t) {
+            LOG.log(Level.SEVERE, "Exception thrown in listener", t);
+            throw new RuntimeException(t);
+          }
         }
     }
 
