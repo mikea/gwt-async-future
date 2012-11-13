@@ -6,6 +6,10 @@
         <setting name="compilerMaxHeapSize" value="128" />
         <setting name="gwtScriptOutputStyle" value="DETAILED" />
         <setting name="gwtSdkUrl" value="file://$MODULE_DIR$/../../../photographr/tools/gwt-sdk" />
+        <packaging>
+          <module name="com.googlecode.future.AsyncFuture" enabled="false" />
+          <module name="com.googlecode.future.Tests" enabled="false" />
+        </packaging>
       </configuration>
     </facet>
   </component>
