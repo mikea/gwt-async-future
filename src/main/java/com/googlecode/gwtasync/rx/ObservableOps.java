@@ -18,4 +18,6 @@ public interface ObservableOps<T> {
   <S> Observable<S> selectMany(Fn<T, Observable<S>> f);
 
   Future<List<T>> asFuture();
+
+  Observable<T> proxy(Observer<T> observer);
 }

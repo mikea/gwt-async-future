@@ -19,13 +19,13 @@ public abstract class ObservableImpl<T> extends ObservableBase<T> implements Obs
 
   @Override
   public Disposable subscribe(@Nonnull final Observer<T> observer) {
-    if (observers.isEmpty()) {
-      onStart();
-    }
-
     List<Observer<T>> newObservers = newArrayList(observers);
     newObservers.add(observer);
     observers = newObservers;
+
+    if (observers.size() == 1) {
+      onStart();
+    }
 
     return new Disposable() {
       @Override

@@ -12,6 +12,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.googlecode.gwtasync.future.FutureResult.newFutureResult;
+import static com.googlecode.gwtasync.rx.ObservableResult.newObservableResult;
 
 /**
  * @author mike.aizatsky@gmail.com
@@ -46,6 +47,36 @@ public abstract class ObservableBase<T> implements Observable<T> {
         });
       }
     };
+  }
+
+  @Override
+  public Observable<T> proxy(final Observer<T> observer) {
+    final ObservableBase<T> self = this;
+
+    return newObservableResult(new ObservableResult.WhenNeeded<T>() {
+      @Override
+      public void run(final ObservableResult.Result<T> result, Disposer disposer) {
+        self.subscribe(new Observer<T>() {
+          @Override
+          public void onCompleted() {
+            observer.onCompleted();
+            result.onCompleted();
+          }
+
+          @Override
+          public void onError(Throwable t) {
+            observer.onError(t);
+            result.onError(t);
+          }
+
+          @Override
+          public void onNext(T value) {
+            observer.onNext(value);
+            result.onNext(value);
+          }
+        });
+      }
+    });
   }
 
   @Override
